@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lukerieff/widgets/shared/icon_wrapper.dart';
 
 class RootScreenDrawerListTile extends StatelessWidget {
   final VoidCallback onPressed;
@@ -19,14 +20,12 @@ class RootScreenDrawerListTile extends StatelessWidget {
     return ListTile(
       onTap: onPressed,
       dense: true,
-      trailing: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            iconData,
-          ),
-        ],
+      trailing: IconWrapper(
+        iconData: iconData,
+        size: 36.0,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        elevation: 1.0,
       ),
       title: Text(title),
       subtitle: subtitle == null ? null : Text(subtitle!),

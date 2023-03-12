@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:lukerieff/entities/UserEntity.dart';
 import 'package:lukerieff/global_client.dart';
 import 'package:lukerieff/global_secure_storage.dart';
+import 'package:lukerieff/protocol/protocol_error.dart';
+import 'package:lukerieff/providers/me_provider.dart';
 import 'package:lukerieff/screen/error_screen.dart';
+import 'package:lukerieff/services/user_service.dart';
+import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -88,7 +93,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
     try {
       await globalClient.connect(host, port, token);
-    } on Exception catch (e) {
+
+      final UserEntity me = await UserService.me();
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<MeProvider>().me = me;
+      });
+    } on ProtocolServerError catch (e) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => showErrorScreen(
           context,

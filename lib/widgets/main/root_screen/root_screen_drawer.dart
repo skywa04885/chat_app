@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:lukerieff/entities/UserEntity.dart';
+import 'package:lukerieff/providers/me_provider.dart';
 import 'package:lukerieff/screen/main/profile_screen.dart';
 import 'package:lukerieff/widgets/main/root_screen/root_screen_drawer/root_screen_drawer_list_tile.dart';
+import 'package:lukerieff/widgets/shared/account_picture.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 
 class RootScreenDrawer extends StatefulWidget {
   const RootScreenDrawer({Key? key}) : super(key: key);
@@ -33,12 +37,18 @@ class _RootScreenDrawerState extends State<RootScreenDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    final UserEntity me = context.watch<MeProvider>().me;
+
     return Drawer(
       child: ListView(
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text('Asd'),
-            accountEmail: Text('ASd'),
+            accountName: Text(me.profile.hasFullName() ? me.profile.fullName : "@${me.username}"),
+            accountEmail: Text(me.email),
+            currentAccountPicture: AccountPicture(
+              name: me.username,
+              size: 48.0,
+            ),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary,
             ),

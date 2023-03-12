@@ -29,6 +29,7 @@ class RootScreenBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      backgroundColor: Theme.of(context).colorScheme.secondary,
       onTap: _onSelected,
       currentIndex: page.index,
       showUnselectedLabels: false,

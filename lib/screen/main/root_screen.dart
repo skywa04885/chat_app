@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lukerieff/widgets/main/root_screen/root_screen_bottom_navigation_bar.dart';
 import 'package:lukerieff/widgets/main/root_screen/root_screen_drawer.dart';
 import 'package:lukerieff/widgets/main/root_screen/root_screen_floating_action_buttons/root_screen_new_chat_floating_action_butten.dart';
+import 'package:lukerieff/widgets/main/root_screen/root_screen_modal_bottom_sheet.dart';
 import 'package:lukerieff/widgets/main/root_screen/root_screen_pages/root_screen_chats_page.dart';
 
 enum RootScreenSelectedPage { chats, calls, contacts }
@@ -40,13 +42,33 @@ class RootScreen extends StatefulWidget {
 class _RootScreenState extends State<RootScreen> {
   RootScreenSelectedPage _page = RootScreenSelectedPage.chats;
 
-  void _onPageSelected(final RootScreenSelectedPage page) {
+  Future<void> _onPageSelected(final RootScreenSelectedPage page) async {
+    await HapticFeedback.vibrate();
+
     setState(() {
       _page = page;
     });
   }
 
-  Future<void> _onNewChatPressed() async {}
+  Future<void> _onNewChatPressed() async {
+    await HapticFeedback.vibrate();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(32.0),
+            topLeft: Radius.circular(32.0),
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        builder: (final BuildContext context) {
+          return const RootScreenModalBottomSheet();
+        },
+      );
+    });
+  }
 
   /// Gets the floating action button associated with the current page.
   Widget? _getFloatingActionButton() {
@@ -76,9 +98,6 @@ class _RootScreenState extends State<RootScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_page.label),
-      ),
       floatingActionButton: _getFloatingActionButton(),
       drawer: RootScreenDrawer(),
       bottomNavigationBar: RootScreenBottomNavigationBar(
@@ -86,6 +105,7 @@ class _RootScreenState extends State<RootScreen> {
         onPageSelected: _onPageSelected,
       ),
       body: _getBody(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

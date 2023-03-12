@@ -2,35 +2,20 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
-import 'package:lukerieff/networking/app_server_channels.dart';
-import 'package:lukerieff/networking/protocol/client/client.dart';
-import 'package:lukerieff/networking/protocol/channel/channel.dart';
-import 'package:lukerieff/networking/protocol/pb/frame_message.pb.dart';
+import 'package:lukerieff/protocol/client/protocol_client.dart';
+import 'package:lukerieff/protocol/channel/channel.dart';
+import 'package:lukerieff/protocol/messages/frame_messages.pb.dart';
 
 class GlobalClient {
   static final _globalClient = GlobalClient._initiate();
 
-  SecurityContext? _securityContext;
-  Client? _client;
+  ProtocolClient? _client;
   Channel? _primaryChannel;
 
   GlobalClient._initiate();
 
   factory GlobalClient() {
     return _globalClient;
-  }
-
-  /// Gets the security context.
-  Future<SecurityContext> _getSecurityContext() async {
-    final ByteData certificateByteData =
-        await rootBundle.load("assets/certificates/server.crt");
-
-    // Creates the security context and adds our own certificate.
-    final SecurityContext securityContext = SecurityContext.defaultContext;
-    securityContext
-        .setTrustedCertificatesBytes(certificateByteData.buffer.asUint8List());
-
-    return securityContext;
   }
 
   /// Connects to the serer.
@@ -41,38 +26,13 @@ class GlobalClient {
       _client = null;
     }
 
-    // Loads the security context.
-    _securityContext ??= await _getSecurityContext();
+    _client = ProtocolClient(host, port);
 
-    // Creates the secure socket.
-    final SecureSocket secureSocket = await SecureSocket.connect(
-      host,
-      port,
-      context: _securityContext,
-      onBadCertificate: (_) => true, // FIXME: Remove this in production.
-    );
-
-    // Creates the client.
-    final Client client = Client(secureSocket);
-
-    // Constructs the authentication token payload and claims the primary channel.
-    final TokenAuthenticationBody tokenAuthenticationBody =
-        TokenAuthenticationBody(
-      token: token,
-    );
-    final Uint8List tokenAuthenticationBodyBuffer =
-        tokenAuthenticationBody.writeToBuffer();
-    final Channel primaryChannel = await client.claimChannel(
-      AppServerChannels.primary.identifier,
-      body: tokenAuthenticationBodyBuffer,
-    );
-
-    // Stores the client and channel.
     _client = client;
-    _primaryChannel = _primaryChannel;
+    _primaryChannel = primaryChannel;
   }
 
-  Client get client {
+  ProtocolClient get client {
     return _client!;
   }
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lukerieff/widgets/shared/slivers/persistent_header_delegates/SimpleSliverPersistentHeaderDelegate.dart';
+import 'package:lukerieff/widgets/shared/slivers/persistent_header_delegates/simple_sliver_persistent_header_delegate.dart';
 
 class ServerConfigurationScreenHeader extends StatelessWidget {
   final bool? loading;

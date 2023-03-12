@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:lukerieff/providers/me_provider.dart';
+import 'package:lukerieff/screen/main/create_direct_chat_screen.dart';
+import 'package:lukerieff/screen/main/user_search_screen.dart';
 import 'package:lukerieff/screen/splash_screen.dart';
 import 'package:lukerieff/screen/main/development_screen.dart';
 import 'package:lukerieff/screen/main/root_screen.dart';
 import 'package:lukerieff/screen/setup/auth_configuration_screen.dart';
 import 'package:lukerieff/screen/setup/pin_configuration_screen.dart';
 import 'package:lukerieff/screen/setup/ServerConfigurationScreen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const Root());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({
+class Root extends StatefulWidget {
+  const Root({
     super.key,
   });
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<Root> createState() => _RootState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _RootState extends State<Root> {
   static const String _initialRoute = "/splash";
   static final Map<String, Widget Function(BuildContext)> _routes = {
     "/splash": (final BuildContext context) => const SplashScreen(),
@@ -29,10 +33,13 @@ class _MyAppState extends State<MyApp> {
         const PinConfigurationScreen(),
     "/setup/auth_configuration": (final BuildContext context) =>
         const AuthConfigurationScreen(),
-    "/main/root": (final BuildContext context) =>
-        const RootScreen(),
+    "/main/root": (final BuildContext context) => const RootScreen(),
     "/main/development": (final BuildContext context) =>
         const DevelopmentScreen(),
+    "/main/chats/create/direct": (final BuildContext context) =>
+        const CreateDirectChatScreen(),
+    "/main/users/search": (final BuildContext context) =>
+        const UserSearchScreen(),
   };
 
   @override
@@ -42,28 +49,36 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: Colors.purple,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white.withOpacity(0.5),
-          enableFeedback: true,
-          elevation: 5.0,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => MeProvider(),
         ),
-        colorScheme: const ColorScheme.dark(
-          primary: Colors.purple,
-          onPrimary: Colors.white,
-          secondary: Colors.deepPurple,
-          onSecondary: Colors.white,
-          error: Colors.purpleAccent,
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          bottomNavigationBarTheme: BottomNavigationBarThemeData(
+            backgroundColor: Colors.purple,
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.white.withOpacity(0.5),
+            elevation: 5.0,
+          ),
+          colorScheme: const ColorScheme.dark(
+            primary: Colors.purple,
+            onPrimary: Colors.white,
+            secondary: Colors.deepPurple,
+            onSecondary: Colors.white,
+            tertiary: Colors.indigo,
+            onTertiary: Colors.white,
+            error: Colors.purpleAccent,
+          ),
+          errorColor: Colors.purpleAccent,
         ),
-        errorColor: Colors.purpleAccent,
+        routes: _routes,
+        initialRoute: _initialRoute,
       ),
-      routes: _routes,
-      initialRoute: _initialRoute,
     );
   }
 }

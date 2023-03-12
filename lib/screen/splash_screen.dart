@@ -109,25 +109,6 @@ class _SplashScreenState extends State<SplashScreen> {
       port,
     ));
 
-    try {
-      // final UserEntity me = await UserService.me();
-      //
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-      //   context.read<MeProvider>().me = me;
-      // });
-    } on ProtocolServerError catch (e) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => showErrorScreen(
-          context,
-          "Failed to connect to the server.",
-          "An exception was raised while we tried to connect.",
-          e.toString(),
-        ),
-      );
-
-      // return;
-    }
-
     WidgetsBinding.instance.addPostFrameCallback(
         (_) => Navigator.of(context).pushReplacementNamed("/main/root"));
   }

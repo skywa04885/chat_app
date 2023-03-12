@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lukerieff/widgets/main/root_screen/root_screen_pages/root_screen_chats_page/root_screen_chats_page_app_bar.dart';
 import 'package:lukerieff/widgets/main/root_screen/root_screen_pages/root_screen_chats_page/root_screen_chats_page_header.dart';
 
+import '../../../../protocol/client/protocol_client_state.dart';
+
 class RootScreenChatsPage extends StatefulWidget {
   const RootScreenChatsPage({Key? key}) : super(key: key);
 

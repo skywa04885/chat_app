@@ -29,8 +29,8 @@ class PortField extends StatelessWidget {
       ],
       validator: _validator,
       decoration: const InputDecoration(
-        labelText: 'Host',
-        helperText: 'IPv4, IPv6 or Hostname',
+        labelText: 'Port',
+        helperText: 'Numeric value between 0 and 65535',
         icon: Icon(Icons.numbers_outlined),
       ),
     );

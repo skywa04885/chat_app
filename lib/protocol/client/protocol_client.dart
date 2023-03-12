@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:logger/logger.dart';
 import 'package:lukerieff/protocol/channel.dart';
+import 'package:lukerieff/protocol/channel/protocol_channel_configuration.dart';
 import 'package:lukerieff/protocol/client/channels.dart';
 import 'package:lukerieff/protocol/client/command_manager.dart';
 import 'package:lukerieff/protocol/client/commands/command/claim_channel_command.dart';
@@ -20,8 +21,6 @@ class ProtocolClient {
   final ProtocolClientConfiguration configuration;
   final Channels _channels = Channels();
   final CommandManager _commandManager = CommandManager();
-  final List<void Function()> _onConnectedCallbacks = [];
-  final List<void Function()> _onDisconnectedCallbacks = [];
   late ProtocolClientFrameReader _frameReader;
   SecureSocket? _secureSocket;
   int _nextCommandNo = 0;
@@ -39,22 +38,12 @@ class ProtocolClient {
     _frameReader = ProtocolClientFrameReader(_onFrame);
 
     _performConnectionAttempt();
-  }
 
-  void addOnConnectedCallback(final void Function() callback) {
-    _onConnectedCallbacks.add(callback);
-  }
-
-  void removeOnConnectedCallback(final void Function() callback) {
-    _onConnectedCallbacks.remove(callback);
-  }
-
-  void addOnDisconnectedCallback(final void Function() callback) {
-    _onDisconnectedCallbacks.add(callback);
-  }
-
-  void removeOnDisconnectedCallback(final void Function() callback) {
-    _onDisconnectedCallbacks.remove(callback);
+    for (final ProtocolChannelConfiguration channelConfiguration
+        in configuration.channelConfigurations) {
+      final Channel channel = Channel(this, channelConfiguration);
+      _channels.add(channel);
+    }
   }
 
   /// Performs a connection attempt.
@@ -77,9 +66,7 @@ class ProtocolClient {
           " to connect: ${socketException.message}");
 
       _secureSocket = null;
-      _reconnectTimer =
-          Timer(configuration.reconnectInterval, _performConnectionAttempt);
-
+      _startReconnectTimer();
       return;
     }
 
@@ -90,17 +77,50 @@ class ProtocolClient {
       onError: _onSecureSocketError,
       onDone: _onSecureSocketDone,
     );
+
+    for (final Channel channel in _channels.values) {
+      _logger.d("Claiming channel ${channel.configuration.identifier}");
+
+      final Uint8List? claimCommandBody =
+          channel.configuration.authentication?.getBodyForClaimCommand();
+      
+      final Command command = ClaimChannelCommand(
+        _commandNo,
+        channel.configuration.identifier,
+        body: claimCommandBody,
+      );
+
+      final Reply reply = await sendCommand(command);
+      
+      if (reply.hasError()) {
+        _logger.e("Failed to claim channel ${channel.configuration.identifier},"
+            " error: ${reply.error}");
+      }
+    }
   }
 
   /// Gets called once the secure socket has an error.
   void _onSecureSocketError(error) {
     _logger.e("The secure socket had an error: $error");
+
+    _startReconnectTimer();
   }
 
   /// Gets called once the secure socket is done.
   void _onSecureSocketDone() {
     _logger.d("The secure socket is done.");
     _channels.closeAllDueToConnectionLoss();
+
+    _startReconnectTimer();
+  }
+
+  /// Starts the reconnect timer.
+  void _startReconnectTimer() {
+    _logger.d("Starting the reconnect timer, reconnecting in "
+        "${configuration.reconnectInterval}");
+
+    _reconnectTimer =
+        Timer(configuration.reconnectInterval, _performConnectionAttempt);
   }
 
   /// Handles the reception of a new channeled message.
@@ -179,26 +199,6 @@ class ProtocolClient {
     return pendingCommand.future;
   }
 
-  /// Claims the channel with the given identifier.
-  Future<void> claimChannel(
-    final int channelIdentifier, {
-    Uint8List? body,
-  }) async {
-    final Command command = ClaimChannelCommand(
-      _commandNo,
-      channelIdentifier,
-      body: body,
-    );
-
-    final Reply reply = await sendCommand(command);
-    if (reply.hasError()) {
-      throw reply.error!;
-    }
-
-    final Channel channel = Channel(this, channelIdentifier);
-    _channels.add(channel);
-  }
-
   Future<void> destroy() async {
     _logger.d("destroy() called");
 
@@ -209,5 +209,9 @@ class ProtocolClient {
 
     _logger.d("Closing secure socket");
     await _secureSocket!.close();
+  }
+
+  Channel? getChannelByIdentifier(final int identifier) {
+    return _channels.get(identifier);
   }
 }

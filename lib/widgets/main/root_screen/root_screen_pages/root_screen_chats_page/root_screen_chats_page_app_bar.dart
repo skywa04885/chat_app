@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:lukerieff/widgets/shared/connection_status_app_bar_bottom.dart';
 
 class RootScreenChatsPageAppBar extends StatelessWidget {
   const RootScreenChatsPageAppBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SliverAppBar.medium(
+    return SliverAppBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Theme.of(context).colorScheme.onPrimary,
       title: const Text('Chats'),
       floating: true,
       pinned: true,
+      bottom: ConnectionStatusAppBarBottom(),
     );
   }
 }

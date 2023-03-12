@@ -13,7 +13,7 @@ import 'package:lukerieff/services/user_service/user_service_search_response/use
 class UserService {
   static Future<UserEntity> me() async {
     final GlobalClient globalClient = GlobalClient();
-    final Channel primaryChannel = globalClient.primaryChannel;
+    final Channel primaryChannel = globalClient.client.getChannelByIdentifier(0)!;
 
     final Uint8List? responseBody = await primaryChannel.request(
       FrameChanneledRequestMessage_ServiceNo.C2S_USER_SERVICE__ME,
@@ -33,7 +33,7 @@ class UserService {
     final int limit,
   ) async {
     final GlobalClient globalClient = GlobalClient();
-    final Channel primaryChannel = globalClient.primaryChannel;
+    final Channel primaryChannel = globalClient.client.getChannelByIdentifier(0)!;
 
     final SearchRequestMessage searchRequest = SearchRequestMessage(
       searchQuery: searchQuery,

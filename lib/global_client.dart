@@ -5,7 +5,6 @@ class GlobalClient {
   static final _globalClient = GlobalClient._initiate();
 
   ProtocolClient? _client;
-  Channel? _primaryChannel;
 
   GlobalClient._initiate();
 
@@ -19,9 +18,5 @@ class GlobalClient {
 
   ProtocolClient get client {
     return _client!;
-  }
-
-  Channel get primaryChannel {
-    return _primaryChannel!;
   }
 }

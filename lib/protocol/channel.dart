@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:lukerieff/protocol/channel/events/event.dart';
 import 'package:lukerieff/protocol/channel/events/event_listeners.dart';
+import 'package:lukerieff/protocol/channel/protocol_channel_configuration.dart';
 import 'package:lukerieff/protocol/channel/services/pending_callback_request.dart';
 import 'package:lukerieff/protocol/channel/services/pending_completer_request.dart';
 import 'package:lukerieff/protocol/channel/services/request.dart';
@@ -17,7 +18,7 @@ import 'package:lukerieff/protocol/messages/frame_messages.pb.dart';
 
 class Channel {
   final ProtocolClient client;
-  final int identifier;
+  final ProtocolChannelConfiguration configuration;
   final EventListeners _eventListeners = EventListeners();
   final PendingRequests _pendingRequests = PendingRequests();
 
@@ -26,7 +27,7 @@ class Channel {
   /// Constructs a new channel.
   Channel(
     this.client,
-    this.identifier,
+    this.configuration,
   );
 
   /// Handles a new event message.
@@ -71,7 +72,7 @@ class Channel {
     await client.sendFrame(
       FrameMessage(
         channeled: FrameChanneledMessage(
-          channel: identifier,
+          channel: configuration.identifier,
           event: event.encode(),
         ),
       ),
@@ -99,7 +100,7 @@ class Channel {
   FrameMessage _buildChanneledRequestMessage(final FrameChanneledRequestMessage requestMessage,) {
     return FrameMessage(
       channeled: FrameChanneledMessage(
-        channel: identifier,
+        channel: configuration.identifier,
         request: requestMessage,
       ),
     );

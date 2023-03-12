@@ -7,7 +7,7 @@ import 'package:lukerieff/screen/main/development_screen.dart';
 import 'package:lukerieff/screen/main/root_screen.dart';
 import 'package:lukerieff/screen/setup/auth_configuration_screen.dart';
 import 'package:lukerieff/screen/setup/pin_configuration_screen.dart';
-import 'package:lukerieff/screen/setup/ServerConfigurationScreen.dart';
+import 'package:lukerieff/screen/setup/server_configuration_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {

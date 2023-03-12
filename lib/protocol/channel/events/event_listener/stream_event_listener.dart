@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'event_listener.dart';
-import 'event.dart';
+import '../event_listener.dart';
+import '../event.dart';
 
 class StreamEventListener extends EventListener {
   final StreamController<Event> _streamController = StreamController<Event>();

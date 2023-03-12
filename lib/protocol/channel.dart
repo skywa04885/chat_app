@@ -20,6 +20,7 @@ class Channel {
   final int identifier;
   final EventListeners _eventListeners = EventListeners();
   final PendingRequests _pendingRequests = PendingRequests();
+
   int _nextRequestNumber = 0;
 
   /// Constructs a new channel.

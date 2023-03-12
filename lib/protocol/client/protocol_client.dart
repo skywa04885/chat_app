@@ -3,15 +3,13 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:logger/logger.dart';
-import 'package:lukerieff/protocol/channel/channel.dart';
+import 'package:lukerieff/protocol/channel.dart';
 import 'package:lukerieff/protocol/client/channels.dart';
 import 'package:lukerieff/protocol/client/command_manager.dart';
 import 'package:lukerieff/protocol/client/commands/command/claim_channel_command.dart';
 import 'package:lukerieff/protocol/client/commands/command.dart';
 import 'package:lukerieff/protocol/client/pending_completer_command.dart';
 import 'package:lukerieff/protocol/client/protocol_client_configuration.dart';
-import 'package:lukerieff/protocol/client/protocol_client_configuration/protocol_client_configuration_channel.dart';
-import 'package:lukerieff/protocol/client/protocol_client_configuration/protocol_client_configuration_channel/protocol_client_configuration_channel_authentication.dart';
 import 'package:lukerieff/protocol/client/protocol_client_frame_reader.dart';
 import 'package:lukerieff/protocol/client/replies/reply.dart';
 import 'package:lukerieff/protocol/messages/frame_messages.pb.dart';
@@ -59,24 +57,6 @@ class ProtocolClient {
     _onDisconnectedCallbacks.remove(callback);
   }
 
-  /// Claims all the channels specified in the configuration.
-  Future<void> _claimConfiguredChannels() async {
-    _logger.d("Claiming ${configuration.channels.length} configured channels");
-
-    for (final configurationChannel in configuration.channels) {
-      final int channelIdentifier = configurationChannel.identifier;
-      final ProtocolClientConfigurationChannelAuthentication? authentication =
-          configurationChannel.authentication;
-
-      _logger.d("Claiming configured channel with identifier $channelIdentifier");
-
-      await claimChannel(
-        channelIdentifier,
-        body: authentication?.body(),
-      );
-    }
-  }
-
   /// Performs a connection attempt.
   Future<void> _performConnectionAttempt() async {
     _logger.d(
@@ -110,8 +90,6 @@ class ProtocolClient {
       onError: _onSecureSocketError,
       onDone: _onSecureSocketDone,
     );
-
-    await _claimConfiguredChannels();
   }
 
   /// Gets called once the secure socket has an error.
@@ -122,21 +100,17 @@ class ProtocolClient {
   /// Gets called once the secure socket is done.
   void _onSecureSocketDone() {
     _logger.d("The secure socket is done.");
-
-    // Closes all the channels due to the connection loss.
     _channels.closeAllDueToConnectionLoss();
   }
 
   /// Handles the reception of a new channeled message.
   void _onChanneledMessage(final FrameChanneledMessage channeledMsg) {
-    // Gets the channel, and throws an error if it does not exist.
     final Channel? channel = _channels.get(channeledMsg.channel);
     if (channel == null) {
       throw Exception(
           "Cannot forward message to channel ${channeledMsg.channel} because it does not exist!");
     }
 
-    // Forwards the message.
     channel.onChanneledMessage(channeledMsg);
   }
 
@@ -182,16 +156,13 @@ class ProtocolClient {
     final FrameMessage frame, {
     bool flush = true,
   }) async {
-    // Constructs the two buffers.
     final Uint8List frameBuffer = frame.writeToBuffer();
     final Uint8List frameLengthBuffer =
         _computeFrameLengthBuffer(frameBuffer.length);
 
-    // Writes the buffers to the client.
     _secureSocket!.add(frameLengthBuffer);
     _secureSocket!.add(frameBuffer);
 
-    // Flushes the buffers, if specified.
     if (flush) {
       await _secureSocket!.flush();
     }
@@ -231,13 +202,11 @@ class ProtocolClient {
   Future<void> destroy() async {
     _logger.d("destroy() called");
 
-    // Stops the reconnect timer if there.
     if (_reconnectTimer != null) {
       _logger.d("Cancelling reconnect timer");
       _reconnectTimer!.cancel();
     }
 
-    // Closes the secure socket.
     _logger.d("Closing secure socket");
     await _secureSocket!.close();
   }

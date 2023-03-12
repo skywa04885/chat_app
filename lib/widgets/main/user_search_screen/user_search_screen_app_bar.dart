@@ -14,6 +14,7 @@ class UserSearchScreenAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
+      backgroundColor: Theme.of(context).colorScheme.primary,
       title: const Text('Search for user'),
       bottom: UserSearchScreenAppBarBottom(
         onSearchQuery: onSearchQuery,

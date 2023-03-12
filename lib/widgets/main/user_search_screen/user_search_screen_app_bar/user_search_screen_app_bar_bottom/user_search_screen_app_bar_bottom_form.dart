@@ -11,12 +11,21 @@ class UserSearchAppBarBottomForm extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<UserSearchAppBarBottomForm> createState() => _UserSearchAppBarBottomFormState();
+  State<UserSearchAppBarBottomForm> createState() =>
+      _UserSearchAppBarBottomFormState();
 }
 
-class _UserSearchAppBarBottomFormState extends State<UserSearchAppBarBottomForm> {
+class _UserSearchAppBarBottomFormState
+    extends State<UserSearchAppBarBottomForm> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   final TextEditingController _textEditingController = TextEditingController();
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+
+    super.dispose();
+  }
 
   void _onSearchPressed() {
     if (_formKey.currentState == null) {
@@ -41,20 +50,38 @@ class _UserSearchAppBarBottomFormState extends State<UserSearchAppBarBottomForm>
     return Form(
       key: _formKey,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: TextFormField(
               enabled: !widget.loading,
               controller: _textEditingController,
               validator: _queryValidator,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Search query',
+                border: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.5),
+                  ),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+                labelStyle: TextStyle(
+                  color:
+                      Theme.of(context).colorScheme.onPrimary.withOpacity(0.5),
+                ),
+                floatingLabelStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
                 helperText: 'Emails, phone numbers or usernames.',
               ),
             ),
           ),
           const SizedBox(
-            width: 8.0,
+            width: 16.0,
           ),
           IconButton(
             onPressed: widget.loading ? null : _onSearchPressed,

@@ -58,12 +58,20 @@ class _RootState extends State<Root> {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
+          useMaterial3: true,
           primarySwatch: Colors.blue,
           bottomNavigationBarTheme: BottomNavigationBarThemeData(
             backgroundColor: Colors.purple,
             selectedItemColor: Colors.white,
             unselectedItemColor: Colors.white.withOpacity(0.5),
             elevation: 5.0,
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+          ),
+          navigationBarTheme: NavigationBarThemeData(
+            backgroundColor: Colors.purple,
+            indicatorColor: Colors.white.withOpacity(0.2),
           ),
           colorScheme: const ColorScheme.dark(
             primary: Colors.purple,
@@ -75,6 +83,7 @@ class _RootState extends State<Root> {
             error: Colors.purpleAccent,
           ),
           errorColor: Colors.purpleAccent,
+          scaffoldBackgroundColor: Colors.grey[900],
         ),
         routes: _routes,
         initialRoute: _initialRoute,

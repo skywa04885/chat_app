@@ -4,7 +4,7 @@ import 'package:lukerieff/datatypes/pair.dart';
 import 'package:lukerieff/entities/UserEntity.dart';
 import 'package:lukerieff/entities/messages/user_messages.pb.dart';
 import 'package:lukerieff/global_client.dart';
-import 'package:lukerieff/protocol/channel/channel.dart';
+import 'package:lukerieff/protocol/channel.dart';
 import 'package:lukerieff/protocol/messages/frame_messages.pb.dart';
 import 'package:lukerieff/services/messages/user_service_messages.pb.dart';
 import 'package:lukerieff/services/user_service/user_service_search_response.dart';

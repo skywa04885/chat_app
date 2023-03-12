@@ -1,4 +1,4 @@
-import 'package:lukerieff/protocol/channel/channel.dart';
+import 'package:lukerieff/protocol/channel.dart';
 import 'package:lukerieff/protocol/channel/services/request_error.dart';
 
 class Channels {

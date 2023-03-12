@@ -1,5 +1,5 @@
-import 'event.dart';
-import 'event_listener.dart';
+import '../event.dart';
+import '../event_listener.dart';
 
 typedef EventListenerCallback = void Function(Event);
 

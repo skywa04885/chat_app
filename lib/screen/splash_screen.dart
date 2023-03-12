@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:lukerieff/entities/UserEntity.dart';
 import 'package:lukerieff/global_client.dart';
 import 'package:lukerieff/global_secure_storage.dart';
+import 'package:lukerieff/protocol/channel/protocol_channel_configuration.dart';
+import 'package:lukerieff/protocol/channel/protocol_channel_configuration/protocol_channel_configuration_authentication.dart';
+import 'package:lukerieff/protocol/channel/protocol_channel_configuration/protocol_channel_configuration_authentication/protocol_channel_configuration_token_authentication.dart';
+import 'package:lukerieff/protocol/client/protocol_client.dart';
+import 'package:lukerieff/protocol/client/protocol_client_configuration.dart';
 import 'package:lukerieff/protocol/protocol_error.dart';
 import 'package:lukerieff/providers/me_provider.dart';
 import 'package:lukerieff/screen/error_screen.dart';
@@ -89,16 +94,27 @@ class _SplashScreenState extends State<SplashScreen> {
       _message = "Connecting to $host:$port";
     });
 
+    final ProtocolChannelConfigurationAuthentication authentication =
+        ProtocolChannelConfigurationTokenAuthentication(token);
+
     final GlobalClient globalClient = GlobalClient();
+    globalClient.client = ProtocolClient(ProtocolClientConfiguration(
+      <ProtocolChannelConfiguration>[
+        ProtocolChannelConfiguration(
+          0,
+          authentication: authentication,
+        ),
+      ],
+      host,
+      port,
+    ));
 
     try {
-      await globalClient.connect(host, port, token);
-
-      final UserEntity me = await UserService.me();
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<MeProvider>().me = me;
-      });
+      // final UserEntity me = await UserService.me();
+      //
+      // WidgetsBinding.instance.addPostFrameCallback((_) {
+      //   context.read<MeProvider>().me = me;
+      // });
     } on ProtocolServerError catch (e) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => showErrorScreen(
@@ -109,7 +125,7 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       );
 
-      return;
+      // return;
     }
 
     WidgetsBinding.instance.addPostFrameCallback(

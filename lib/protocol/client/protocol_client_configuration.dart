@@ -1,19 +1,19 @@
-import 'package:lukerieff/protocol/client/protocol_client_configuration/protocol_client_configuration_channel.dart';
+import 'package:lukerieff/protocol/channel/protocol_channel_configuration.dart';
 
 class ProtocolClientConfiguration {
   static const Duration defaultReconnectInterval = Duration(seconds: 5);
   static const Duration defaultConnectTimeout = Duration(seconds: 5);
 
+  final List<ProtocolChannelConfiguration> channelConfigurations;
   final String host;
   final int port;
-  final List<ProtocolClientConfigurationChannel> channels;
   final Duration reconnectInterval;
   final Duration connectTimeout;
 
-  const ProtocolClientConfiguration({
-    required this.host,
-    required this.port,
-    required this.channels,
+  const ProtocolClientConfiguration(
+    this.channelConfigurations,
+    this.host,
+    this.port, {
     this.reconnectInterval = defaultReconnectInterval,
     this.connectTimeout = defaultConnectTimeout,
   });

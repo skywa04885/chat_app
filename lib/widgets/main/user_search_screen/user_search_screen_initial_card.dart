@@ -10,7 +10,7 @@ class UserSearchScreenInitialCard extends StatelessWidget {
       sliver: SliverToBoxAdapter(
         child: Card(
           elevation: 5.0,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.primary,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -18,7 +18,7 @@ class UserSearchScreenInitialCard extends StatelessWidget {
                 Icon(
                   Icons.search_outlined,
                   size: 36.0,
-                  color: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
                 const SizedBox(
                   width: 16.0,
@@ -30,7 +30,7 @@ class UserSearchScreenInitialCard extends StatelessWidget {
                       Text(
                         'Perform search query',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onBackground,
+                          color: Theme.of(context).colorScheme.onPrimary,
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
                         ),
@@ -43,7 +43,7 @@ class UserSearchScreenInitialCard extends StatelessWidget {
                         style: TextStyle(
                           color: Theme.of(context)
                               .colorScheme
-                              .onBackground
+                              .onPrimary
                               .withOpacity(0.6),
                           fontSize: 11.0,
                         ),

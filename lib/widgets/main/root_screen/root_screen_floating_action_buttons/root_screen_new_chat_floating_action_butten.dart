@@ -11,9 +11,6 @@ class RootScreenNewChatFloatingActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
       onPressed: onPressed,
       child: const Icon(Icons.add),
     );

@@ -11,9 +11,10 @@ class RootScreenBottomNavigationBar extends StatelessWidget {
     required this.onPageSelected,
   }) : super(key: key);
 
-  List<BottomNavigationBarItem> _buildItems() {
-    return RootScreenSelectedPage.values.map((final RootScreenSelectedPage rootScreenPage) {
-      return BottomNavigationBarItem(
+  List<NavigationDestination> _buildDestinations() {
+    return RootScreenSelectedPage.values
+        .map((final RootScreenSelectedPage rootScreenPage) {
+      return NavigationDestination(
         icon: Icon(rootScreenPage.icon),
         label: rootScreenPage.label,
       );
@@ -28,12 +29,10 @@ class RootScreenBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: Theme.of(context).colorScheme.secondary,
-      onTap: _onSelected,
-      currentIndex: page.index,
-      showUnselectedLabels: false,
-      items: _buildItems(),
+    return NavigationBar(
+      onDestinationSelected: _onSelected,
+      selectedIndex: page.index,
+      destinations: _buildDestinations(),
     );
   }
 }

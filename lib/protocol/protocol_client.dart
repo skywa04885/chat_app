@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:logger/logger.dart';
 import 'package:lukerieff/basic_event_emitter.dart';
 import 'package:lukerieff/protocol/channel.dart';
@@ -26,20 +26,32 @@ class ProtocolClient extends BasicEventEmitter<ProtocolClientEvent> {
   final ProtocolClientConfiguration configuration;
   final Channels _channels = Channels();
   final CommandManager _commandManager = CommandManager();
+  final List<FrameMessage> _frameMessageQueue = [];
   late ProtocolClientFrameReader _frameReader;
   SecureSocket? _secureSocket;
   int _nextCommandNo = 0;
   ProtocolClientState _state = ProtocolClientState.disconnected;
 
   Timer? _reconnectTimer;
+  Timer? _heartbeatTimer;
 
   int get _commandNo {
     return _nextCommandNo++;
   }
 
+  ProtocolClientState get state {
+    return _state;
+  }
+
+  /// Sets the state of the client, and emits an event if needed.
   void setState(final ProtocolClientState state) {
+    final bool shouldEmitEvent = _state != state;
+
     _state = state;
-    emit(ProtocolClientStateChangeEvent(state));
+
+    if (shouldEmitEvent) {
+      emit(ProtocolClientStateChangeEvent(state));
+    }
   }
 
   /// Constructs a new client.
@@ -57,13 +69,45 @@ class ProtocolClient extends BasicEventEmitter<ProtocolClientEvent> {
     }
   }
 
+  void _stopHeartbeatTimer() {
+    _logger.d("Stopping heartbeat timer.");
+
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = null;
+  }
+
+  void _startHeartbeatTimer() {
+    _logger.d("Starting heartbeat timer with interval of "
+        "${configuration.heartbeatInterval}.");
+
+    _heartbeatTimer = Timer.periodic(
+        configuration.heartbeatInterval, _heartbeatTimerCallback);
+    print(_heartbeatTimer);
+  }
+
+  Future<void> _heartbeatTimerCallback(final Timer timer) async {
+    _logger.d("Sending heartbeat message.");
+
+    final DateTime currentDateTime = DateTime.now();
+
+    sendFrame(
+      FrameMessage(
+        heartbeat: FrameHeartbeatMessage(
+          timestamp: Int64(currentDateTime.millisecondsSinceEpoch),
+        ),
+      ),
+    );
+  }
+
   /// Performs a connection attempt.
   Future<void> _performConnectionAttempt() async {
     _logger.d(
         "Attempting to connect to server ${configuration.host}:${configuration.port}"
         " with timeout of ${configuration.connectTimeout}.");
 
-    await Future.delayed(const Duration(milliseconds: 250));
+    setState(ProtocolClientState.reconnecting);
+
+    await Future.delayed(const Duration(milliseconds: 1500));
 
     _reconnectTimer = null;
 
@@ -78,6 +122,8 @@ class ProtocolClient extends BasicEventEmitter<ProtocolClientEvent> {
       _logger.e("An socket exception occurred while trying"
           " to connect: ${socketException.message}");
 
+      setState(ProtocolClientState.disconnected);
+
       _secureSocket = null;
       _startReconnectTimer();
       return;
@@ -85,13 +131,13 @@ class ProtocolClient extends BasicEventEmitter<ProtocolClientEvent> {
 
     _logger.d("Connected to ${configuration.host}:${configuration.port}");
 
-    setState(ProtocolClientState.connected);
-
     _secureSocket!.listen(
       _frameReader.write,
       onError: _onSecureSocketError,
       onDone: _onSecureSocketDone,
     );
+
+    _startHeartbeatTimer();
 
     for (final Channel channel in _channels.values) {
       _logger.d("Claiming channel ${channel.configuration.identifier}");
@@ -112,15 +158,13 @@ class ProtocolClient extends BasicEventEmitter<ProtocolClientEvent> {
             " error: ${reply.error}");
       }
     }
+
+    setState(ProtocolClientState.connected);
   }
 
   /// Gets called once the secure socket has an error.
   void _onSecureSocketError(error) {
     _logger.e("The secure socket had an error: $error");
-
-    setState(ProtocolClientState.disconnected);
-
-    _startReconnectTimer();
   }
 
   /// Gets called once the secure socket is done.
@@ -130,6 +174,7 @@ class ProtocolClient extends BasicEventEmitter<ProtocolClientEvent> {
 
     setState(ProtocolClientState.disconnected);
 
+    _stopHeartbeatTimer();
     _startReconnectTimer();
   }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lukerieff/providers/me_provider.dart';
-import 'package:lukerieff/providers/protocol_connection_provider.dart';
 import 'package:lukerieff/screen/main/create_direct_chat_screen.dart';
 import 'package:lukerieff/screen/main/user_search_screen.dart';
 import 'package:lukerieff/screen/splash_screen.dart';
@@ -11,7 +10,7 @@ import 'package:lukerieff/screen/setup/pin_configuration_screen.dart';
 import 'package:lukerieff/screen/setup/server_configuration_screen.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
   runApp(const Root());
 }
 
@@ -55,9 +54,6 @@ class _RootState extends State<Root> {
         ChangeNotifierProvider(
           create: (_) => MeProvider(),
         ),
-        ChangeNotifierProvider(
-          create: (_) => ProtocolConnectionProvider(),
-        ),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -70,8 +66,9 @@ class _RootState extends State<Root> {
             unselectedItemColor: Colors.white.withOpacity(0.5),
             elevation: 5.0,
           ),
-          inputDecorationTheme: const InputDecorationTheme(
+          inputDecorationTheme: InputDecorationTheme(
             filled: true,
+            fillColor: Colors.white.withOpacity(0.15),
           ),
           dividerTheme: DividerThemeData(
             color: Colors.white.withOpacity(0.2),
@@ -85,12 +82,16 @@ class _RootState extends State<Root> {
             onPrimary: Colors.white,
             secondary: Colors.deepPurple,
             onSecondary: Colors.white,
-            tertiary: Colors.indigo,
+            tertiary: Colors.purpleAccent,
             onTertiary: Colors.white,
+            surfaceTint: Colors.purple,
             error: Colors.red,
             onError: Colors.white,
           ),
-          scaffoldBackgroundColor: Colors.grey[900],
+          dialogTheme: const DialogTheme(
+            iconColor: Colors.white,
+          ),
+          scaffoldBackgroundColor: Color.lerp(Colors.purple, Colors.black, 0.75),
         ),
         routes: _routes,
         initialRoute: _initialRoute,

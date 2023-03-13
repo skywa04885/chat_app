@@ -1,4 +1,4 @@
-import 'package:lukerieff/protocol/client/protocol_client.dart';
+import 'package:lukerieff/protocol/protocol_client.dart';
 import 'package:lukerieff/protocol/channel.dart';
 
 class GlobalClient {

@@ -24,10 +24,7 @@ class UserSearchScreenResultsHead extends StatelessWidget {
             Icon(
               Icons.query_builder,
               size: 16.0,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onPrimaryContainer
-                  .withOpacity(0.6),
+              color: Theme.of(context).colorScheme.tertiary,
             ),
             const SizedBox(
               width: 16.0,
@@ -38,10 +35,7 @@ class UserSearchScreenResultsHead extends StatelessWidget {
                 " in ${searchResponse.queryDuration.inMilliseconds} milliseconds.",
                 style: TextStyle(
                   fontSize: 12.0,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onPrimaryContainer
-                      .withOpacity(0.6),
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
               ),
             ),

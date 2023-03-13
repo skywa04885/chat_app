@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lukerieff/protocol/channel/services/request_error.dart';
 import 'package:lukerieff/protocol/channel/services/request_error_type.dart';
 import 'package:lukerieff/services/user_service.dart';
@@ -19,6 +20,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   UserServiceSearchResponse? _searchResponse;
   bool _loading = false;
 
+  /// Gets called once a search query has to be performed.
   Future<void> _onSearchQuery(String query) async {
     setState(() {
       _loading = true;
@@ -33,6 +35,8 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
         _loading = false;
       });
     } on RequestError catch (requestError) {
+      if (!mounted) return;
+
       showDialog(
         context: context,
         builder: (final BuildContext context) {
@@ -47,6 +51,16 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
     }
   }
 
+  /// Gets called once a user has been pressed.
+  Future<void> _onUserPressed(final int userId) async  {
+    await HapticFeedback.vibrate();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context).pop<int>(userId);
+    });
+  }
+
+  /// Builds the slivers.
   List<Widget> _buildSlivers() {
     List<Widget> slivers = [
       UserSearchScreenAppBar(
@@ -64,6 +78,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
         ),
         UserSearchScreenResultsList(
           entries: _searchResponse?.entries ?? [],
+          onUserPressed: _onUserPressed,
         ),
       ]);
     }
@@ -71,6 +86,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
     return slivers;
   }
 
+  /// Builds the user search screen.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

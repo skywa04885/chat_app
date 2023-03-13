@@ -13,7 +13,7 @@ import 'package:lukerieff/protocol/channel/services/request_error.dart';
 import 'package:lukerieff/protocol/channel/services/request_error_type.dart';
 import 'package:lukerieff/protocol/channel/services/pending_requests.dart';
 import 'package:lukerieff/protocol/channel/services/response.dart';
-import 'package:lukerieff/protocol/client/protocol_client.dart';
+import 'package:lukerieff/protocol/protocol_client.dart';
 import 'package:lukerieff/protocol/messages/frame_messages.pb.dart';
 
 class Channel {

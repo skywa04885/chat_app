@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lukerieff/widgets/shared/connection_status_indicator.dart';
+import 'package:lukerieff/widgets/shared/protocol_client_state_indicator.dart';
 
 class RootScreenChatsPageAppBar extends StatelessWidget {
   const RootScreenChatsPageAppBar({Key? key}) : super(key: key);

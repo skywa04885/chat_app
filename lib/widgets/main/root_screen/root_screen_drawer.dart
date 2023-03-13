@@ -27,9 +27,11 @@ class _RootScreenDrawerState extends State<RootScreenDrawer> {
   }
 
   Future<void> _onProfilePressed() async {
+    final UserEntity me = context.read<MeProvider>().me;
+
     final MaterialPageRoute<ProfileScreen> materialPageRoute =
         MaterialPageRoute<ProfileScreen>(builder: (final BuildContext context) {
-      return ProfileScreen();
+      return ProfileScreen(me);
     });
 
     await Navigator.of(context).push(materialPageRoute);

@@ -42,8 +42,5 @@ class Channels {
     for (final Channel channel in _channels.values) {
       channel.closeDueToConnectionLoss();
     }
-
-    // Removes all the channels from the map.
-    _channels.clear();
   }
 }

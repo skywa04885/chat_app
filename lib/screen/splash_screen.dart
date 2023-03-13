@@ -1,12 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+import 'package:lukerieff/basic_event_emitter.dart';
 import 'package:lukerieff/entities/UserEntity.dart';
 import 'package:lukerieff/global_client.dart';
 import 'package:lukerieff/global_secure_storage.dart';
 import 'package:lukerieff/protocol/channel/protocol_channel_configuration.dart';
 import 'package:lukerieff/protocol/channel/protocol_channel_configuration/protocol_channel_configuration_authentication.dart';
 import 'package:lukerieff/protocol/channel/protocol_channel_configuration/protocol_channel_configuration_authentication/protocol_channel_configuration_token_authentication.dart';
-import 'package:lukerieff/protocol/client/protocol_client.dart';
+import 'package:lukerieff/protocol/client/protocol_client_state.dart';
+import 'package:lukerieff/protocol/protocol_client.dart';
 import 'package:lukerieff/protocol/client/protocol_client_configuration.dart';
+import 'package:lukerieff/protocol/client/protocol_client_event.dart';
+import 'package:lukerieff/protocol/client/protocol_client_state_change_event.dart';
 import 'package:lukerieff/protocol/protocol_error.dart';
 import 'package:lukerieff/providers/me_provider.dart';
 import 'package:lukerieff/screen/error_screen.dart';
@@ -21,6 +28,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  static final Logger _logger = Logger();
+
   String _message = "LOADING";
 
   @override
@@ -98,6 +107,9 @@ class _SplashScreenState extends State<SplashScreen> {
         ProtocolChannelConfigurationTokenAuthentication(token);
 
     final GlobalClient globalClient = GlobalClient();
+
+    _logger.d("Initializing the global client ...");
+
     globalClient.client = ProtocolClient(ProtocolClientConfiguration(
       <ProtocolChannelConfiguration>[
         ProtocolChannelConfiguration(
@@ -109,8 +121,30 @@ class _SplashScreenState extends State<SplashScreen> {
       port,
     ));
 
-    WidgetsBinding.instance.addPostFrameCallback(
-        (_) => Navigator.of(context).pushReplacementNamed("/main/root"));
+    _logger.d("Waiting for client to connect ...");
+
+    Completer<void> completer = Completer<void>();
+    globalClient.client.addCallbackListener(ProtocolClientEvent.stateChange,
+        (final BasicEvent<ProtocolClientEvent> basicEvent) {
+      final ProtocolClientStateChangeEvent stateChangeEvent =
+          basicEvent as ProtocolClientStateChangeEvent;
+
+      if (stateChangeEvent.state == ProtocolClientState.connected) {
+        completer.complete();
+
+        return true;
+      }
+    });
+    await completer.future;
+
+    _logger.d("Client has connected!");
+
+    final UserEntity me = await UserService.me();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      context.read<MeProvider>().me = me;
+      await Navigator.of(context).pushReplacementNamed("/main/root");
+    });
   }
 
   @override

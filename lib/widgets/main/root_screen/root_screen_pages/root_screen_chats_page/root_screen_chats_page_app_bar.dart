@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lukerieff/widgets/shared/connection_status_app_bar_bottom.dart';
+import 'package:lukerieff/widgets/shared/connection_status_indicator.dart';
 
 class RootScreenChatsPageAppBar extends StatelessWidget {
   const RootScreenChatsPageAppBar({Key? key}) : super(key: key);
@@ -12,7 +12,6 @@ class RootScreenChatsPageAppBar extends StatelessWidget {
       title: const Text('Chats'),
       floating: true,
       pinned: true,
-      bottom: ConnectionStatusAppBarBottom(),
     );
   }
 }

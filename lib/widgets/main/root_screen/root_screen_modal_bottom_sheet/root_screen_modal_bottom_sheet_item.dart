@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lukerieff/widgets/shared/icon_wrapper.dart';
 
 class RootScreenModalBottomSheetItem extends StatelessWidget {
   final VoidCallback onPressed;
@@ -18,12 +19,12 @@ class RootScreenModalBottomSheetItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: onPressed,
-      trailing: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(iconData),
-        ],
+      trailing: IconWrapper(
+        iconData: iconData,
+        elevation: 0.0,
+        backgroundColor: Theme.of(context).colorScheme.onPrimary,
+        foregroundColor: Theme.of(context).colorScheme.primary,
+        size: 36.0,
       ),
       title: Text(title),
       subtitle: Text(subtitle),

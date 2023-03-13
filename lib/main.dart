@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lukerieff/providers/me_provider.dart';
+import 'package:lukerieff/providers/protocol_connection_provider.dart';
 import 'package:lukerieff/screen/main/create_direct_chat_screen.dart';
 import 'package:lukerieff/screen/main/user_search_screen.dart';
 import 'package:lukerieff/screen/splash_screen.dart';
@@ -54,6 +55,9 @@ class _RootState extends State<Root> {
         ChangeNotifierProvider(
           create: (_) => MeProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => ProtocolConnectionProvider(),
+        ),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -66,8 +70,11 @@ class _RootState extends State<Root> {
             unselectedItemColor: Colors.white.withOpacity(0.5),
             elevation: 5.0,
           ),
-          inputDecorationTheme: InputDecorationTheme(
+          inputDecorationTheme: const InputDecorationTheme(
             filled: true,
+          ),
+          dividerTheme: DividerThemeData(
+            color: Colors.white.withOpacity(0.2),
           ),
           navigationBarTheme: NavigationBarThemeData(
             backgroundColor: Colors.purple,
@@ -80,9 +87,9 @@ class _RootState extends State<Root> {
             onSecondary: Colors.white,
             tertiary: Colors.indigo,
             onTertiary: Colors.white,
-            error: Colors.purpleAccent,
+            error: Colors.red,
+            onError: Colors.white,
           ),
-          errorColor: Colors.purpleAccent,
           scaffoldBackgroundColor: Colors.grey[900],
         ),
         routes: _routes,

@@ -59,15 +59,37 @@ class _UserSearchAppBarBottomFormState
               validator: _queryValidator,
               decoration: InputDecoration(
                 labelText: 'Search query',
+                fillColor:
+                    Theme.of(context).colorScheme.onPrimary.withOpacity(0.15),
                 errorStyle: TextStyle(
-                  color:  Theme.of(context).colorScheme.onPrimary.withOpacity(0.9),
+                  color:
+                      Theme.of(context).colorScheme.onPrimary.withOpacity(0.9),
                 ),
                 border: UnderlineInputBorder(
                   borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.5),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onPrimary
+                        .withOpacity(0.3),
+                  ),
+                ),
+                errorBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onPrimary
+                        .withOpacity(0.5),
                   ),
                 ),
                 focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onPrimary
+                        .withOpacity(0.8),
+                  ),
+                ),
+                focusedErrorBorder: UnderlineInputBorder(
                   borderSide: BorderSide(
                     color: Theme.of(context).colorScheme.onPrimary,
                   ),

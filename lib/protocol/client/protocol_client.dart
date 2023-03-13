@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
 import 'package:logger/logger.dart';
+import 'package:lukerieff/basic_event_emitter.dart';
 import 'package:lukerieff/protocol/channel.dart';
 import 'package:lukerieff/protocol/channel/protocol_channel_configuration.dart';
 import 'package:lukerieff/protocol/client/channels.dart';
@@ -11,11 +13,14 @@ import 'package:lukerieff/protocol/client/commands/command/claim_channel_command
 import 'package:lukerieff/protocol/client/commands/command.dart';
 import 'package:lukerieff/protocol/client/pending_completer_command.dart';
 import 'package:lukerieff/protocol/client/protocol_client_configuration.dart';
+import 'package:lukerieff/protocol/client/protocol_client_event.dart';
 import 'package:lukerieff/protocol/client/protocol_client_frame_reader.dart';
+import 'package:lukerieff/protocol/client/protocol_client_state.dart';
+import 'package:lukerieff/protocol/client/protocol_client_state_change_event.dart';
 import 'package:lukerieff/protocol/client/replies/reply.dart';
 import 'package:lukerieff/protocol/messages/frame_messages.pb.dart';
 
-class ProtocolClient {
+class ProtocolClient extends BasicEventEmitter<ProtocolClientEvent> {
   static final Logger _logger = Logger();
 
   final ProtocolClientConfiguration configuration;
@@ -24,11 +29,17 @@ class ProtocolClient {
   late ProtocolClientFrameReader _frameReader;
   SecureSocket? _secureSocket;
   int _nextCommandNo = 0;
+  ProtocolClientState _state = ProtocolClientState.disconnected;
 
   Timer? _reconnectTimer;
 
   int get _commandNo {
     return _nextCommandNo++;
+  }
+
+  void setState(final ProtocolClientState state) {
+    _state = state;
+    emit(ProtocolClientStateChangeEvent(state));
   }
 
   /// Constructs a new client.
@@ -52,6 +63,8 @@ class ProtocolClient {
         "Attempting to connect to server ${configuration.host}:${configuration.port}"
         " with timeout of ${configuration.connectTimeout}.");
 
+    await Future.delayed(const Duration(milliseconds: 250));
+
     _reconnectTimer = null;
 
     try {
@@ -72,6 +85,8 @@ class ProtocolClient {
 
     _logger.d("Connected to ${configuration.host}:${configuration.port}");
 
+    setState(ProtocolClientState.connected);
+
     _secureSocket!.listen(
       _frameReader.write,
       onError: _onSecureSocketError,
@@ -83,7 +98,7 @@ class ProtocolClient {
 
       final Uint8List? claimCommandBody =
           channel.configuration.authentication?.getBodyForClaimCommand();
-      
+
       final Command command = ClaimChannelCommand(
         _commandNo,
         channel.configuration.identifier,
@@ -91,7 +106,7 @@ class ProtocolClient {
       );
 
       final Reply reply = await sendCommand(command);
-      
+
       if (reply.hasError()) {
         _logger.e("Failed to claim channel ${channel.configuration.identifier},"
             " error: ${reply.error}");
@@ -103,6 +118,8 @@ class ProtocolClient {
   void _onSecureSocketError(error) {
     _logger.e("The secure socket had an error: $error");
 
+    setState(ProtocolClientState.disconnected);
+
     _startReconnectTimer();
   }
 
@@ -110,6 +127,8 @@ class ProtocolClient {
   void _onSecureSocketDone() {
     _logger.d("The secure socket is done.");
     _channels.closeAllDueToConnectionLoss();
+
+    setState(ProtocolClientState.disconnected);
 
     _startReconnectTimer();
   }

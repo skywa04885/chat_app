@@ -1,0 +1,3 @@
+enum ProtocolClientEvent {
+  stateChange,
+}
